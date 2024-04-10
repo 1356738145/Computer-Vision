@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%">
+<head>
+  <meta charset="utf-8">
+</head>
+<body style="height: 100%; margin: 0">
+  <div id="container" style="height: 100%"></div>
+
+  <script type="text/javascript" src="https://cdn.staticfile.net/jquery/3.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://registry.npmmirror.com/echarts/5.5.0/files/dist/echarts.min.js"></script>
+  <script type="text/javascript" src="https://registry.npmmirror.com/echarts-gl/2/files/dist/echarts-gl.min.js"></script>
+
+  <script type="text/javascript">
+    var dom = document.getElementById('container');
+    var myChart = echarts.init(dom, null, {
+      renderer: 'canvas',
+      useDirtyRect: false
+    });
+    var app = {};
+    var ROOT_PATH = 'https://echarts.apache.org/examples';
+    var option;
+
+    $.get(
+      './stat.json',
+      function (data) {
+        var symbolSize = 7.5;
+        option = {
+          grid3D: {},
+          xAxis3D: {
+            
+            min: 0,
+            max:250
+          },
+          yAxis3D: {min: 0},
+          zAxis3D: {min: 0},
+          dataset: {
+            dimensions: [
+              'Red',
+              'Green',
+              'Blue',
+              { name: 'Class', type: 'ordinal' }
+            ],
+            source: data
+          },
+          series: [
+  {
+    type: 'scatter3D',
+    symbolSize: symbolSize,
+    encode: {
+      x: 'Blue',
+      y: 'Green',
+      z: 'Red',
+      tooltip: [0, 1, 2, 3]
+    },
+    itemStyle: {
+      color: function (params) {
+        // 按照数据中的类别字段（Class）设置不同的颜色
+        var colorMap = {
+          1: '#A0B8BE',  // 红色
+          2: '#596760',  // 绿色
+          3: '#7D9290',  // 蓝色
+          4: '#2A2C27'   // 紫色
+          // 可根据您的实际类别值和需要设置更多颜色
+        };
+        return colorMap[data[params.dataIndex][3]]; // 根据数据中的类别字段决定颜色
+      }
+    }
+  }
+]
+        
+        };
+        myChart.setOption(option);
+      }
+    );
+
+    if (option && typeof option === 'object') {
+      myChart.setOption(option);
+    }
+
+    window.addEventListener('resize', myChart.resize);
+  </script>
+</body>
+</html>
